@@ -78,7 +78,7 @@
     </select>
     <button class="cbtn on" id="btnCC" title="字幕開關" aria-label="字幕">CC</button>
     <button class="cbtn" id="btnMenu" title="章節選單（M）" aria-label="章節選單">☰ 章節</button>
-    <button class="cbtn accent" id="btnQuiz" title="課後測驗">📝 測驗</button>
+    <a class="cbtn accent" id="btnQuiz" href="#" target="_blank" rel="noopener" title="另開新視窗前往課後測驗">📝 課後測驗</a>
     <button class="cbtn" id="btnFull" title="全螢幕（F）" aria-label="全螢幕">⛶</button>
   </div>
 </div>
@@ -92,27 +92,6 @@
     </div>
     <div class="progress-sum" id="progressSum"></div>
     <ol class="chapter-list" id="chapterList"></ol>
-  </div>
-</div>
-
-<!-- 課後測驗 -->
-<div class="quiz" id="quiz" aria-hidden="true">
-  <div class="quiz-panel">
-    <div class="quiz-head">
-      <h2>📝 課後測驗</h2>
-      <span class="quiz-count" id="quizCount">已作答 0 / 10 題</span>
-      <button class="x" id="quizClose" aria-label="關閉">✕</button>
-    </div>
-    <div class="quiz-id">
-      <label>單位／部門<input id="qDept" placeholder="例：業務部"></label>
-      <label>姓名<input id="qName" placeholder="請輸入姓名"></label>
-    </div>
-    <div id="quizBody"></div>
-    <div class="quiz-foot">
-      <button class="btn" id="quizReset">重新作答</button>
-      <button class="btn primary" id="quizSubmit">交卷</button>
-    </div>
-    <div id="quizResult"></div>
   </div>
 </div>
 

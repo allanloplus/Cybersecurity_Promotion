@@ -57,7 +57,8 @@
     if (sc.type === 'cover') {
       h = `<div class="cover"><div class="icon">${sc.icon}</div><div class="kicker">${esc(sc.kicker)}</div>
            <h2>${esc(sc.title)}</h2><p>${esc(sc.sub)}</p>
-           ${sc.showContact ? `<div class="contact">📞 ${esc(C.org.contact)}</div>` : ''}</div>`;
+           ${sc.showContact ? `<div class="contact">📞 ${esc(C.org.contact)}</div>` : ''}
+           ${sc.showQuiz && C.org.quizUrl ? `<a class="btn primary quiz-link" href="${esc(C.org.quizUrl)}" target="_blank" rel="noopener">📝 前往課後測驗 ▶</a>` : ''}</div>`;
     } else if (sc.type === 'list') {
       const cls = `grid c${sc.cols || 2}${sc.compact ? ' compact' : ''}`;
       h = `<h3 class="b-title">${esc(sc.title)}</h3>${sc.note ? `<p class="b-note">${esc(sc.note)}</p>` : ''}
@@ -240,7 +241,6 @@
       st.timer = setTimeout(() => goChapter(st.ci + 1, true), 1500);
     } else {
       setPlaying(false);
-      setTimeout(() => openQuiz(), 800);
     }
   }
 
@@ -321,7 +321,7 @@
   /* ---------- 章節選單 ---------- */
   function renderMenu() {
     const n = C.chapters.filter((c) => saved.done[c.id]).length;
-    $('progressSum').innerHTML = `已完成 ${n} / ${C.chapters.length} 章${saved.quiz ? `・測驗最佳成績 ${saved.quiz.best} 分` : ''}
+    $('progressSum').innerHTML = `已完成 ${n} / ${C.chapters.length} 章
       <div class="bar"><i style="width:${100 * n / C.chapters.length}%"></i></div>`;
     $('chapterList').innerHTML = C.chapters.map((c, k) => `
       <li class="${k === st.ci && st.started ? 'current' : ''}"><button data-ch="${k}">
@@ -329,14 +329,12 @@
         <span><div class="t">${esc(c.title)}</div><div class="d">${esc(c.brief)}</div></span>
         <span class="m">${fmt(c.total)}<br>${saved.done[c.id] ? '<span class="ok">✔ 已完成</span>' : ''}</span>
       </button></li>`).join('') +
-      `<li class="quiz-entry"><button data-quiz="1"><span class="ic">📝</span>
-        <span><div class="t">課後測驗</div><div class="d">共 ${C.quiz.length} 題・${C.org.passScore} 分及格</div></span>
-        <span class="m">${saved.quiz ? `最佳 ${saved.quiz.best} 分` : ''}</span></button></li>`;
+      (C.org.quizUrl ? `<li class="quiz-entry"><a href="${esc(C.org.quizUrl)}" target="_blank" rel="noopener"><span class="ic">📝</span>
+        <span><div class="t">課後測驗</div><div class="d">另開新視窗作答</div></span><span class="m">↗</span></a></li>` : '');
   }
   $('chapterList').addEventListener('click', (ev) => {
     const b = ev.target.closest('button'); if (!b) return;
     closeMenu();
-    if (b.dataset.quiz) return openQuiz();
     const k = +b.dataset.ch;
     if (!st.started) start(k); else goChapter(k, true);
   });
@@ -375,10 +373,11 @@
     const el = $('app');
     if (document.fullscreenElement) document.exitFullscreen(); else if (el.requestFullscreen) el.requestFullscreen();
   };
-  $('btnQuiz').onclick = () => openQuiz();
-  stage.addEventListener('click', (ev) => { if (st.started && !ev.target.closest('button')) togglePlay(); });
+  if (C.org.quizUrl) $('btnQuiz').href = C.org.quizUrl; else $('btnQuiz').hidden = true;
+  $('btnQuiz').addEventListener('click', () => { if (st.playing) togglePlay(); });
+  stage.addEventListener('click', (ev) => { if (st.started && !ev.target.closest('button, a')) togglePlay(); });
   document.addEventListener('keydown', (ev) => {
-    if (/INPUT|SELECT|TEXTAREA/.test(ev.target.tagName) || $('quiz').classList.contains('open')) return;
+    if (/INPUT|SELECT|TEXTAREA/.test(ev.target.tagName)) return;
     if (ev.code === 'Space') { ev.preventDefault(); togglePlay(); }
     else if (ev.key === 'ArrowRight' && st.started) goLine(1);
     else if (ev.key === 'ArrowLeft' && st.started) goLine(-1);
@@ -386,88 +385,6 @@
     else if (ev.key === 'f' || ev.key === 'F') $('btnFull').click();
     else if (ev.key === 'Escape') closeMenu();
   });
-
-  /* ---------- 課後測驗 ---------- */
-  const answers = C.quiz.map(() => new Set());
-  let graded = false;
-  function renderQuiz() {
-    const keys = ['A', 'B', 'C', 'D'];
-    $('quizBody').innerHTML = C.quiz.map((q, n) => {
-      const multi = q.kind === '複選';
-      return `<div class="qq" id="qq${n}">
-        <div class="qq-h"><span class="qq-n">${n + 1}.</span><span class="qq-q">${esc(q.q)}</span><span class="qq-kind">${q.kind}｜10 分</span></div>
-        <div class="qq-opts">${q.opts.map((o, k) => `<label data-k="${k}"><input type="${multi ? 'checkbox' : 'radio'}" name="q${n}" value="${k}"> ${keys[k]}. ${esc(o)}</label>`).join('')}</div>
-        <div class="qq-why"></div></div>`;
-    }).join('');
-    $('quizResult').innerHTML = '';
-    graded = false;
-    answers.forEach((s) => s.clear());
-    updateCount();
-  }
-  function updateCount() { $('quizCount').textContent = `已作答 ${answers.filter((s) => s.size).length} / ${C.quiz.length} 題`; }
-  $('quizBody').addEventListener('change', (ev) => {
-    if (graded) return;
-    const n = +ev.target.name.slice(1);
-    const q = C.quiz[n];
-    if (q.kind === '複選') { ev.target.checked ? answers[n].add(+ev.target.value) : answers[n].delete(+ev.target.value); }
-    else { answers[n].clear(); answers[n].add(+ev.target.value); }
-    updateCount();
-  });
-  $('quizSubmit').onclick = () => {
-    if (graded) return;
-    const left = answers.filter((s) => !s.size).length;
-    if (left && !confirm(`還有 ${left} 題未作答，確定要交卷嗎？`)) return;
-    graded = true;
-    let score = 0;
-    C.quiz.forEach((q, n) => {
-      const ok = q.ans.length === answers[n].size && q.ans.every((a) => answers[n].has(a));
-      if (ok) score += 100 / C.quiz.length;
-      const box = $('qq' + n);
-      box.classList.add('graded');
-      box.querySelectorAll('input').forEach((i) => { i.disabled = true; });
-      box.querySelectorAll('label').forEach((lb) => {
-        const k = +lb.dataset.k;
-        if (q.ans.includes(k)) lb.classList.add('right');
-        else if (answers[n].has(k)) lb.classList.add('picked-wrong');
-      });
-      const chIdx = C.chapters.findIndex((c) => c.id === q.ch);
-      box.querySelector('.qq-why').innerHTML = `<span class="tag" style="color:${ok ? 'var(--good)' : 'var(--bad)'}">${ok ? '✔ 答對' : '✖ 答錯'}</span>${esc(q.why)}` +
-        (ok ? '' : `<a data-review="${chIdx}">回到「${esc(C.chapters[chIdx].title)}」複習 ▶</a>`);
-    });
-    score = Math.round(score);
-    const pass = score >= C.org.passScore;
-    saved.quiz = { best: Math.max(score, (saved.quiz && saved.quiz.best) || 0), last: score, at: new Date().toISOString() };
-    persist();
-    const name = $('qName').value.trim(), dept = $('qDept').value.trim();
-    const date = new Date().toLocaleDateString('zh-TW', { year: 'numeric', month: 'long', day: 'numeric' });
-    $('quizResult').innerHTML = `<div class="result ${pass ? 'pass' : 'fail'}">
-        <div class="score">${score} 分</div>
-        <p>${pass ? '🎉 恭喜通過！阿拉蕾幫你放煙火～' : `差一點點！及格分數為 ${C.org.passScore} 分，看看解析後再挑戰一次吧！`}</p>
-        ${pass ? `<div class="cert"><h3>🏅 資訊安全宣導課程 結業證明</h3>
-          <p>茲證明</p><p class="who">${esc(dept)} ${esc(name || '　　　　')}</p>
-          <p>已完成「${esc(C.title)}」年度資訊安全宣導課程，</p>
-          <p>並通過課後測驗，成績 <b>${score}</b> 分。</p>
-          <p style="color:var(--ink-soft);font-size:14px">${esc(C.org.name)}・${date}</p></div>
-          <p><button class="btn" onclick="window.print()">🖨 列印／另存 PDF</button></p>` : ''}
-      </div>`;
-    $('quizResult').scrollIntoView({ behavior: 'smooth' });
-    renderMenu();
-  };
-  $('quizBody').addEventListener('click', (ev) => {
-    const a = ev.target.closest('[data-review]'); if (!a) return;
-    closeQuiz();
-    const k = +a.dataset.review;
-    if (!st.started) start(k); else goChapter(k, true);
-  });
-  $('quizReset').onclick = renderQuiz;
-  function openQuiz() {
-    if (st.playing) togglePlay();
-    $('quiz').classList.add('open'); $('quiz').setAttribute('aria-hidden', 'false');
-    $('quiz').scrollTop = 0;
-  }
-  function closeQuiz() { $('quiz').classList.remove('open'); $('quiz').setAttribute('aria-hidden', 'true'); }
-  $('quizClose').onclick = closeQuiz;
-  renderQuiz();
 
   // 供自動化測試／錄製使用
   window.__player = {
