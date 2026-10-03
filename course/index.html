@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>資安從我做起｜年度資安宣導課程</title>
+<meta name="description" content="年度資訊安全宣導動畫課程：社交工程防範、密碼管理、資料保護、資安事件通報、個資保護基本觀念。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=LXGW+WenKai+TC:wght@400;700&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="app" id="app">
+
+  <!-- 舞台（16:9，依視窗等比縮放） -->
+  <div class="stage-wrap" id="stageWrap">
+    <div class="stage" id="stage">
+      <div class="bg">
+        <span class="deco d1">🔒</span><span class="deco d2">🛡️</span><span class="deco d3">🔑</span>
+        <span class="deco d4">💻</span><span class="deco d5">☁️</span><span class="deco d6">☁️</span>
+        <div class="floor"></div>
+      </div>
+
+      <div class="chapter-pill" id="chapterPill"></div>
+      <div class="scene-dots" id="sceneDots"></div>
+
+      <div class="board" id="board"></div>
+
+      <div class="char arale" id="charA">
+        <div class="emote" id="emoteA"></div>
+        <img src="assets/img/arale.webp" alt="助教阿拉蕾">
+        <div class="nametag">助教・阿拉蕾</div>
+      </div>
+      <div class="char allan" id="charL">
+        <div class="emote" id="emoteL"></div>
+        <img src="assets/img/allan.webp" alt="講師 Allan">
+        <div class="nametag">講師・Allan</div>
+      </div>
+
+      <div class="subtitle" id="subtitle">
+        <span class="who" id="subWho"></span>
+        <span class="text" id="subText"></span>
+      </div>
+
+      <!-- 開始畫面 -->
+      <div class="splash" id="splash">
+        <div class="splash-inner">
+          <div class="splash-kicker">年度資訊安全宣導課程</div>
+          <h1>資安從我做起</h1>
+          <p class="splash-sub">社交工程｜密碼管理｜資料保護｜事件通報｜個資保護</p>
+          <div class="splash-btns">
+            <button class="btn primary big" id="btnStart">▶ 開始上課</button>
+            <button class="btn big" id="btnResume" hidden>⏯ 從上次進度繼續</button>
+            <button class="btn big" id="btnChapters">📚 選擇章節</button>
+          </div>
+          <p class="splash-tip">建議開啟喇叭或戴上耳機・全程約 <b id="totalMin">25</b> 分鐘</p>
+        </div>
+      </div>
+
+      <div class="paused-badge" id="pausedBadge">⏸ 已暫停</div>
+    </div>
+  </div>
+
+  <!-- 控制列 -->
+  <div class="controls" id="controls">
+    <button class="cbtn" id="btnPrev" title="上一句（←）" aria-label="上一句">⏮</button>
+    <button class="cbtn play" id="btnPlay" title="播放／暫停（空白鍵）" aria-label="播放">▶</button>
+    <button class="cbtn" id="btnNext" title="下一句（→）" aria-label="下一句">⏭</button>
+    <div class="timeline" id="timeline" title="點擊跳到指定位置">
+      <div class="tl-fill" id="tlFill"></div>
+      <div class="tl-marks" id="tlMarks"></div>
+    </div>
+    <span class="time" id="timeText">00:00 / 00:00</span>
+    <select class="cbtn sel" id="speed" title="播放速度" aria-label="播放速度">
+      <option value="0.8">0.8x</option><option value="1" selected>1.0x</option>
+      <option value="1.2">1.2x</option><option value="1.5">1.5x</option>
+    </select>
+    <button class="cbtn on" id="btnCC" title="字幕開關" aria-label="字幕">CC</button>
+    <button class="cbtn" id="btnMenu" title="章節選單（M）" aria-label="章節選單">☰ 章節</button>
+    <button class="cbtn accent" id="btnQuiz" title="課後測驗">📝 測驗</button>
+    <button class="cbtn" id="btnFull" title="全螢幕（F）" aria-label="全螢幕">⛶</button>
+  </div>
+</div>
+
+<!-- 章節選單 -->
+<div class="drawer" id="drawer" aria-hidden="true">
+  <div class="drawer-panel">
+    <div class="drawer-head">
+      <h2>📚 課程章節</h2>
+      <button class="x" id="drawerClose" aria-label="關閉">✕</button>
+    </div>
+    <div class="progress-sum" id="progressSum"></div>
+    <ol class="chapter-list" id="chapterList"></ol>
+  </div>
+</div>
+
+<!-- 課後測驗 -->
+<div class="quiz" id="quiz" aria-hidden="true">
+  <div class="quiz-panel">
+    <div class="quiz-head">
+      <h2>📝 課後測驗</h2>
+      <span class="quiz-count" id="quizCount">已作答 0 / 10 題</span>
+      <button class="x" id="quizClose" aria-label="關閉">✕</button>
+    </div>
+    <div class="quiz-id">
+      <label>單位／部門<input id="qDept" placeholder="例：業務部"></label>
+      <label>姓名<input id="qName" placeholder="請輸入姓名"></label>
+    </div>
+    <div id="quizBody"></div>
+    <div class="quiz-foot">
+      <button class="btn" id="quizReset">重新作答</button>
+      <button class="btn primary" id="quizSubmit">交卷</button>
+    </div>
+    <div id="quizResult"></div>
+  </div>
+</div>
+
+<script src="js/course-data.js"></script>
+<script src="js/audio-manifest.js"></script>
+<script src="js/player.js"></script>
+</body>
+</html>
