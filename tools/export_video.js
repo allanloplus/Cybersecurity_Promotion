@@ -90,7 +90,7 @@ async function recordChapter(browser, ci) {
   filters.push(clips.map((_, k) => `[a${k}]`).join('') + `amix=inputs=${clips.length}:normalize=0:dropout_transition=0,apad[aout]`);
   const out = path.join(OUT, name + '.mp4');
   args.push('-filter_complex', filters.join(';'), '-map', '0:v', '-map', '[aout]',
-    '-vf', 'fps=30,format=yuv420p', '-c:v', 'libx264', '-preset', 'medium', '-crf', '20',
+    '-vf', 'fps=30,format=yuv420p', '-c:v', 'libx264', '-preset', 'slow', '-tune', 'animation', '-crf', '25',
     '-c:a', 'aac', '-b:a', '160k', '-shortest', '-movflags', '+faststart', out);
   execFileSync('ffmpeg', args, { stdio: ['ignore', 'ignore', 'inherit'] });
   fs.rmSync(dir, { recursive: true, force: true });
