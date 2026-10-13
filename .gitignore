@@ -2,3 +2,4 @@ video/.tmp/
 node_modules/
 __pycache__/
 .DS_Store
+.font-cache/

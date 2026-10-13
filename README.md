@@ -45,10 +45,11 @@ node tools/export_video.js     # 輸出 video/00-intro.mp4 … 06-summary.mp4
 | 台詞、畫面重點、案例內容 | `course/js/course-data.js` 的 `chapters` |
 | 聲線（語速、音調） | `tools/build_audio.py` 的 `VOICES` |
 
-修改台詞後重新產生配音（只會重產有變動的句子）：
+修改台詞後重新產生配音（只會重產有變動的句子）與字型子集：
 ```bash
-pip install edge-tts
+pip install edge-tts fonttools brotli
 python3 tools/build_audio.py
+python3 tools/build_fonts.py
 ```
 > 若某句沒有對應音檔，播放器會自動改用瀏覽器內建語音念出，不會中斷。
 
@@ -61,9 +62,11 @@ course/                 ← 部署這個資料夾即可
 ├─ js/audio-manifest.js 配音對照表（自動產生）
 ├─ js/player.js         播放引擎
 ├─ audio/*.mp3          配音（自動產生）
-└─ assets/img/          講師／助教半身去背圖與表情頭像
+├─ assets/img/          講師／助教半身去背圖與表情頭像
+└─ assets/fonts/        自架字型（不需連外網）
 tools/
 ├─ build_audio.py       產生配音（edge-tts：zh-TW-YunJheNeural／zh-TW-HsiaoYuNeural）
+├─ build_fonts.py       產生自架字型子集（Noto Sans TC、霞鶩文楷 TC；改字後請重跑）
 ├─ export_video.js      輸出 MP4
 └─ make_characters.py   從 source/ 角色設定圖裁切半身圖與表情頭像
 source/                 角色設定圖（allan-sheet.jpg、arale-sheet.jpg）與測驗題目截圖
