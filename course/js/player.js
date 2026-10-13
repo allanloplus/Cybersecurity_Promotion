@@ -6,7 +6,16 @@
   const $ = (id) => document.getElementById(id);
   const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
   const NAMES = { L: '講師 Allan', A: '助教 阿拉蕾' };
-  const EMOTES = { jump: '❗', shake: '💦', think: '❓', wow: '✨', ok: '👍' };
+  // 角色表情：台詞的 e 對應到表情頭像與小圖示
+  const FACES = {
+    L: { jump: 'laugh', shake: 'scratch', think: 'think', wow: 'wow', ok: 'wink', tip: 'point', shock: 'shock' },
+    A: { jump: 'cheer', shake: 'cry', think: 'think', wow: 'wow', ok: 'wink', laugh: 'laugh', confused: 'confused', talk: 'talk' }
+  };
+  const BADGES = { jump: '❗', shake: '💦', think: '❓', wow: '✨', ok: '👍', tip: '☝️', shock: '😱', laugh: '🎵', confused: '❓', talk: '💬' };
+  const AVATAR = { L: 'assets/img/allan-smile.webp', A: 'assets/img/arale-talk.webp' };
+  const faceSrc = (s, e) => `assets/img/${s === 'L' ? 'allan' : 'arale'}-${FACES[s][e]}.webp`;
+  // 預先載入表情圖，避免第一次跳出時閃爍
+  Object.keys(FACES).forEach((s) => Object.keys(FACES[s]).forEach((e) => { new Image().src = faceSrc(s, e); }));
   const STORE = 'secAwareness.v1';
   // 錄製模式（tools/export_video.js 使用）：index.html?record=章節序號
   const REC = new URLSearchParams(location.search).get('record');
@@ -145,15 +154,17 @@
     });
   }
   function emote(s, e) {
-    if (!e) return;
+    if (!e || !FACES[s][e]) return;
     const el = chars[s];
     el.classList.remove('e-jump', 'e-shake', 'e-wow', 'e-think', 'e-ok');
     void el.offsetWidth;
-    el.classList.add('e-' + e);
+    el.classList.add('e-' + ({ tip: 'ok', shock: 'shake', laugh: 'jump', confused: 'think', talk: 'ok' }[e] || e));
     const em = $('emote' + s);
-    em.textContent = EMOTES[e] || '';
+    em.innerHTML = `<img src="${faceSrc(s, e)}" alt=""><span class="badge">${BADGES[e] || ''}</span>`;
     em.classList.remove('show'); void em.offsetWidth; em.classList.add('show');
   }
+  // 沒有指定表情時，講師講到重點自動「比一」
+  const autoEmote = (l) => l.e || (l.s === 'L' && /記住|提醒|最重要|千萬|一定要/.test(l.t) ? 'tip' : null);
 
   /* ---------- 播放 ---------- */
   let ttsUtter = null, ttsStart = 0, ttsVoice = null;
@@ -168,10 +179,10 @@
     const l = line();
     const sub = $('subtitle');
     sub.className = 'subtitle ' + l.s + (st.cc ? '' : ' off');
-    $('subWho').textContent = NAMES[l.s];
+    $('subWho').innerHTML = `<img src="${AVATAR[l.s]}" alt="">${NAMES[l.s]}`;
     $('subText').textContent = l.t;
     applyStep(stepFor(st.si, st.li));
-    if (withMotion) emote(l.s, l.e);
+    if (withMotion) emote(l.s, autoEmote(l));
     saved.pos = { ci: st.ci, si: st.si, li: st.li }; persist();
     updateTime();
   }

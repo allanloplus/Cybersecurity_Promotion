@@ -16,6 +16,8 @@
 
 共 8 個「管理實務案例」，每個案例皆以 **情境 → 問題在哪裡 → 管理對策** 呈現，並標示主管應負的管理責任。每章末另有「隨堂小測驗」。
 
+角色依台詞情境會跳出表情泡泡（大笑、思考、驚訝、抓頭、比一提醒、眨眼比讚…），取自角色設定圖的表情包。
+
 課後測驗不內建於本課程，由控制列「📝 課後測驗」、章節選單與課程結尾按鈕另開新視窗連到外部測驗（預設：https://allanloplus.github.io/ISMS_QUIZ66/ ）。
 
 ## 使用方式
@@ -59,12 +61,12 @@ course/                 ← 部署這個資料夾即可
 ├─ js/audio-manifest.js 配音對照表（自動產生）
 ├─ js/player.js         播放引擎
 ├─ audio/*.mp3          配音（自動產生）
-└─ assets/img/          講師／助教去背圖
+└─ assets/img/          講師／助教半身去背圖與表情頭像
 tools/
 ├─ build_audio.py       產生配音（edge-tts：zh-TW-YunJheNeural／zh-TW-HsiaoYuNeural）
 ├─ export_video.js      輸出 MP4
-└─ make_characters.py   從 source/hosts.webp 裁切角色圖
-source/                 原始插圖與測驗題目截圖
+└─ make_characters.py   從 source/ 角色設定圖裁切半身圖與表情頭像
+source/                 角色設定圖（allan-sheet.jpg、arale-sheet.jpg）與測驗題目截圖
 ```
 
 ## 注意事項

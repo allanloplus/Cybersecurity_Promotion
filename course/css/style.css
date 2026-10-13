@@ -219,13 +219,13 @@ button, select, input { font-family: inherit; }
 
 /* ---------- 角色 ---------- */
 .char { position: absolute; z-index: 6; transform-origin: 50% 100%; transition: filter .3s, transform .3s; }
-.char img { display: block; width: 100%; height: auto; filter: drop-shadow(4px 6px 0 rgba(31,42,68,.35)); user-select: none; -webkit-user-drag: none; }
-.char.allan { right: 0; bottom: -14px; width: 192px; }
-.char.arale { left: 6px; bottom: 8px; width: 164px; }
-.char.idle img { animation: breathe 3.6s ease-in-out infinite; }
+.char .sprite { display: block; width: 100%; height: auto; filter: drop-shadow(4px 6px 0 rgba(31,42,68,.35)); user-select: none; -webkit-user-drag: none; }
+.char.allan { right: -2px; bottom: -4px; width: 232px; z-index: 8; }
+.char.arale { left: 4px; bottom: 6px; width: 172px; z-index: 8; }
+.char.idle .sprite { animation: breathe 3.6s ease-in-out infinite; }
 .char.dim { filter: saturate(.7) brightness(.96); }
-.char.talking img { animation: talk .38s ease-in-out infinite alternate; }
-.arale.talking img { animation-duration: .28s; }
+.char.talking .sprite { animation: talk .38s ease-in-out infinite alternate; }
+.arale.talking .sprite { animation-duration: .28s; }
 @keyframes breathe { 0%,100% { transform: scale(1); } 50% { transform: scale(1.012, .992); } }
 @keyframes talk { from { transform: translateY(0) rotate(-.6deg); } to { transform: translateY(-5px) rotate(.6deg); } }
 
@@ -240,13 +240,20 @@ button, select, input { font-family: inherit; }
 @keyframes eThink { 0%,100% { transform: none; } 30%,70% { transform: rotate(-4deg); } }
 
 .emote {
-  position: absolute; z-index: 2; font-size: 46px; opacity: 0; pointer-events: none;
-  transform: scale(.3);
+  position: absolute; z-index: 2; width: 116px; height: 116px; opacity: 0; pointer-events: none;
+  border-radius: 50%; background: #fff; border: 4px solid var(--ink); overflow: visible;
+  box-shadow: 4px 5px 0 rgba(31,42,68,.35);
 }
-.arale .emote { left: 112px; top: -30px; font-size: 38px; }
-.allan .emote { left: 10px; top: -30px; font-size: 38px; }
-.emote.show { animation: emote 1.6s ease forwards; }
-@keyframes emote { 0% { opacity: 0; transform: scale(.3) translateY(10px); } 15% { opacity: 1; transform: scale(1.2); } 25% { transform: scale(1); } 80% { opacity: 1; } 100% { opacity: 0; transform: translateY(-16px); } }
+.emote img { width: 100%; height: 100%; border-radius: 50%; display: block; object-fit: cover; }
+.emote::after { /* 泡泡尾巴 */
+  content: ""; position: absolute; left: 50%; bottom: -16px; margin-left: -10px;
+  border: 10px solid transparent; border-top: 10px solid var(--ink);
+}
+.emote .badge { position: absolute; right: -10px; top: -10px; font-size: 30px; line-height: 1; }
+.arale .emote { left: 34px; top: -128px; }
+.allan .emote { left: 62px; top: -126px; }
+.emote.show { animation: emote 2.6s ease forwards; }
+@keyframes emote { 0% { opacity: 0; transform: scale(.3) translateY(30px); } 12% { opacity: 1; transform: scale(1.12); } 20% { transform: scale(1); } 85% { opacity: 1; transform: none; } 100% { opacity: 0; transform: translateY(-12px) scale(.9); } }
 
 .nametag {
   position: absolute; left: 50%; transform: translateX(-50%); bottom: 10px;
@@ -255,11 +262,11 @@ button, select, input { font-family: inherit; }
   box-shadow: 0 3px 0 rgba(0,0,0,.2);
 }
 .arale .nametag { background: var(--arale); bottom: -2px; }
-.allan .nametag { background: var(--allan); bottom: 24px; left: 58%; }
+.allan .nametag { background: var(--allan); bottom: 6px; left: 60%; }
 
 /* ---------- 字幕 ---------- */
 .subtitle {
-  position: absolute; left: 180px; width: 900px; bottom: 14px; z-index: 7;
+  position: absolute; left: 180px; width: 880px; bottom: 14px; z-index: 7;
   min-height: 106px; display: flex; flex-direction: column; justify-content: center;
   background: rgba(255,255,255,.96); border: 4px solid var(--ink); border-radius: 18px;
   padding: 10px 20px 12px; box-shadow: 6px 6px 0 rgba(31,42,68,.85);
@@ -271,7 +278,8 @@ button, select, input { font-family: inherit; }
 }
 .subtitle.A::before { left: -30px; border-right-color: var(--ink); }
 .subtitle.L::before { right: -30px; border-left-color: var(--ink); }
-.subtitle .who { font-weight: 900; font-size: 16px; margin-bottom: 2px; }
+.subtitle .who { font-weight: 900; font-size: 16px; margin-bottom: 2px; display: flex; align-items: center; gap: 6px; }
+.subtitle .who img { width: 28px; height: 28px; border-radius: 50%; border: 2px solid currentColor; object-fit: cover; background: #fff; }
 .subtitle.A .who { color: var(--arale); }
 .subtitle.L .who { color: var(--allan); }
 .subtitle .text { font-size: 24px; line-height: 1.45; font-weight: 500; }
