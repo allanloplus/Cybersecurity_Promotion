@@ -38,7 +38,15 @@ async function recordChapter(browser, ci) {
   const ctx = await browser.newContext({ viewport: { width: 1280, height: 720 }, deviceScaleFactor: 1, ignoreHTTPSErrors: true });
   const page = await ctx.newPage();
   await page.goto('file://' + path.join(COURSE, 'index.html') + '?record=' + ci);
-  await page.evaluate(() => document.fonts.ready);
+  // 網路字型依字元分段下載：錄影前先把課程用到的所有字元載好，避免畫面中途換字型
+  await page.evaluate(async () => {
+    const text = JSON.stringify(window.COURSE) + '０１２３４５６７８９';
+    const fams = ['"LXGW WenKai TC"', '"Noto Sans TC"'];
+    const specs = [];
+    fams.forEach((f) => ['400', '500', '700', '900'].forEach((w) => specs.push(`${w} 20px ${f}`)));
+    await Promise.all(specs.map((sp) => document.fonts.load(sp, text).catch(() => {})));
+    await document.fonts.ready;
+  });
   await page.waitForTimeout(1500);
 
   const cdp = await ctx.newCDPSession(page);
